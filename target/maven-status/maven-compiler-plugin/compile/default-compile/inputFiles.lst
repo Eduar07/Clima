@@ -1,6 +1,10 @@
 /home/adrian/ProyectoN8N/Clima/src/main/java/com/vacacionesclima/application/usecase/ConsultarClimaUseCaseImpl.java
 /home/adrian/ProyectoN8N/Clima/src/main/java/com/vacacionesclima/domain/model/DatosClima.java
+/home/adrian/ProyectoN8N/Clima/src/main/java/com/vacacionesclima/infrastructure/adapter/in/rest/dto/ClimaResponse.java
 /home/adrian/ProyectoN8N/Clima/src/main/java/com/vacacionesclima/Main.java
+/home/adrian/ProyectoN8N/Clima/src/main/java/com/vacacionesclima/infrastructure/adapter/in/rest/mapper/ClimaMapper.java
+/home/adrian/ProyectoN8N/Clima/src/main/java/com/vacacionesclima/infrastructure/adapter/in/rest/ClimaController.java
+/home/adrian/ProyectoN8N/Clima/src/main/java/com/vacacionesclima/infrastructure/adapter/in/rest/dto/ClimaRequest.java
 /home/adrian/ProyectoN8N/Clima/src/main/java/com/vacacionesclima/domain/port/in/ConsultarClimaUseCase.java
 /home/adrian/ProyectoN8N/Clima/src/main/java/com/vacacionesclima/domain/port/out/ClimaRepository.java
 /home/adrian/ProyectoN8N/Clima/src/main/java/com/vacacionesclima/domain/model/ConsultaClima.java
