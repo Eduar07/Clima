@@ -1,0 +1,35 @@
+# ============================================================
+# CONFIGURACION DEL SERVIDOR
+# ============================================================
+server.port=8080
+
+# ============================================================
+# CONFIGURACION DE MYSQL
+# ============================================================
+# Cambia 'root' y 'tu_password' por tus credenciales
+spring.datasource.url=jdbc:mysql://localhost:3306/vacaciones_clima?useSSL=false&serverTimezone=UTC
+spring.datasource.username=root
+spring.datasource.password=root123
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+# ============================================================
+# CONFIGURACION DE JPA
+# ============================================================
+# update: actualiza la tabla si hay cambios, sin borrar datos
+spring.jpa.hibernate.ddl-auto=update
+
+# Muestra las consultas SQL en la consola (util para aprender)
+spring.jpa.show-sql=true
+
+# Hace que el SQL se vea ordenado en la consola
+spring.jpa.properties.hibernate.format_sql=true
+
+# Dialecto especifico para MySQL 8
+spring.jpa.database-platform=org.hibernate.dialect.MySQLDialect
+
+# ============================================================
+# CONFIGURACION DE OPENWEATHERMAP
+# Reemplaza TU_API_KEY con la key que obtuviste
+# ============================================================
+openweather.api.key=TU_API_KEY_AQUI
+spring.datasource.password=TU_PASSWORD_AQUI
