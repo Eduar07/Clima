@@ -1,2 +1,14 @@
-application.properties
+# Ignorar application.properties con credenciales
+src/main/resources/application.properties
+
+# Ignorar carpeta target generada por Maven
+target/
+
+# Ignorar archivos del sistema operativo
+.DS_Store
+
+# Ignorar archivos de IDEs
+.idea/
+*.iml
+.vscode/application.properties
 target/
