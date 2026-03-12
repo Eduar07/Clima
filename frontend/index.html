@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vacaciones Clima</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- ================================================ -->
+        <!-- ENCABEZADO -->
+        <!-- ================================================ -->
+        <header>
+            <h1>🌤️ Vacaciones Clima</h1>
+            <p class="subtitulo">
+                Descubre qué ropa usar según el clima de tu ciudad
+            </p>
+        </header>
+
+        <!-- ================================================ -->
+        <!-- BUSCADOR -->
+        <!-- ================================================ -->
+        <section class="buscador">
+            <div class="input-grupo">
+                <input
+                    type="text"
+                    id="inputCiudad"
+                    placeholder="Escribe el nombre de la ciudad..."
+                    maxlength="100"
+                    autocomplete="off"
+                >
+                <button id="btnConsultar" onclick="consultarClima()">
+                    🔍 Consultar
+                </button>
+            </div>
+            <p class="ejemplo">
+                Ejemplos: Bogotá, Medellín, Cartagena, Buenos Aires, Madrid
+            </p>
+        </section>
+
+        <!-- ================================================ -->
+        <!-- INDICADOR DE CARGA -->
+        <!-- Se muestra mientras espera la respuesta del backend -->
+        <!-- ================================================ -->
+        <div id="cargando" class="cargando oculto">
+            <div class="spinner"></div>
+            <p>Consultando el clima...</p>
+        </div>
+
+        <!-- ================================================ -->
+        <!-- RESULTADO DEL CLIMA -->
+        <!-- Oculto por defecto, se muestra cuando hay respuesta -->
+        <!-- ================================================ -->
+        <section id="resultado" class="resultado oculto">
+
+            <!-- Nombre de la ciudad y país -->
+            <div class="ciudad-nombre">
+                <h2 id="nombreCiudad"></h2>
+                <span id="nombrePais" class="pais-badge"></span>
+            </div>
+
+            <!-- Temperatura y condición climática -->
+            <div class="datos-clima">
+                <div class="dato-principal">
+                    <span class="icono-temp">🌡️</span>
+                    <span id="temperatura" class="temperatura-valor"></span>
+                    <span class="unidad">°C</span>
+                </div>
+                <div class="condicion">
+                    <span id="condicionIcono"></span>
+                    <span id="condicionTexto"></span>
+                </div>
+            </div>
+
+            <!-- Datos secundarios: humedad y viento -->
+            <div class="datos-secundarios">
+                <div class="dato-item">
+                    <span>💧 Humedad</span>
+                    <strong id="humedad"></strong>
+                </div>
+                <div class="dato-item">
+                    <span>💨 Viento</span>
+                    <strong id="viento"></strong>
+                </div>
+            </div>
+
+            <!-- Recomendación de vestimenta -->
+            <div class="recomendacion">
+                <h3>👗 Recomendación de vestimenta</h3>
+                <p id="textoRecomendacion"></p>
+            </div>
+
+        </section>
+
+        <!-- ================================================ -->
+        <!-- MENSAJE DE ERROR -->
+        <!-- Se muestra cuando la ciudad no existe o hay error -->
+        <!-- ================================================ -->
+        <div id="error" class="error oculto">
+            <span>❌</span>
+            <p id="textoError"></p>
+        </div>
+
+        <!-- ================================================ -->
+        <!-- HISTORIAL DE CONSULTAS -->
+        <!-- Muestra las últimas consultas realizadas -->
+        <!-- ================================================ -->
+        <section class="historial">
+            <h3>📋 Consultas recientes</h3>
+            <div id="listaHistorial">
+                <p class="sin-datos">
+                    Aún no hay consultas registradas
+                </p>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- JavaScript al final del body para que cargue
+         después de todos los elementos HTML -->
+    <script src="js/app.js"></script>
+
+</body>
+</html>
