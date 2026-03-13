@@ -38,3 +38,9 @@ spring.web.resources.static-locations=classpath:/frontend/,classpath:/META-INF/r
 # Reemplaza TU_API_KEY con la key que obtuviste
 # ============================================================
 openweather.api.key=TU_API_KEY_AQUI
+
+# ============================================================
+# CONFIGURACION DE N8N
+# ============================================================
+n8n.workflow.url=http://localhost:5678/webhook/consultar-clima
+n8n.workflow.timeout-seconds=20

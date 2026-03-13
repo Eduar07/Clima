@@ -6,9 +6,11 @@ import com.vacacionesclima.domain.port.out.ClimaRepository;
 import com.vacacionesclima.infrastructure.adapter.in.rest.dto.ClimaRequest;
 import com.vacacionesclima.infrastructure.adapter.in.rest.dto.ClimaResponse;
 import com.vacacionesclima.infrastructure.adapter.in.rest.mapper.ClimaMapper;
+import com.vacacionesclima.infrastructure.adapter.out.api.N8nWorkflowAdapter;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,14 +34,17 @@ public class ClimaController {
     private final ConsultarClimaUseCase consultarClimaUseCase;
     private final ClimaMapper mapper;
     private final ClimaRepository climaRepository;
+    private final N8nWorkflowAdapter n8nWorkflowAdapter;
 
     // Inyección por constructor
     public ClimaController(ConsultarClimaUseCase consultarClimaUseCase,
                            ClimaMapper mapper,
-                           ClimaRepository climaRepository) {
+                           ClimaRepository climaRepository,
+                           N8nWorkflowAdapter n8nWorkflowAdapter) {
         this.consultarClimaUseCase = consultarClimaUseCase;
         this.mapper = mapper;
         this.climaRepository = climaRepository;
+        this.n8nWorkflowAdapter = n8nWorkflowAdapter;
     }
 
     // =========================================================
@@ -74,6 +79,64 @@ public class ClimaController {
             // HTTP 404 Not Found
             return ResponseEntity.status(404).body(error);
         }
+    }
+
+    // =========================================================
+    // ENDPOINT EXTRA: Consultar clima usando n8n como backend
+    // Método: POST
+    // URL:    /api/clima/consultar-n8n
+    // Este endpoint actúa como proxy contra n8n para evitar
+    // problemas de CORS desde el navegador.
+    // =========================================================
+    @PostMapping("/consultar-n8n")
+    public ResponseEntity<ClimaResponse> consultarClimaConN8n(
+            @Valid @RequestBody ClimaRequest request) {
+
+        try {
+            ClimaResponse respuesta = n8nWorkflowAdapter
+                    .ejecutarWorkflow(request.getCiudad().trim());
+
+            registrarConsulta(respuesta);
+
+            return ResponseEntity.ok(respuesta);
+        } catch (Exception e) {
+            ClimaResponse error = new ClimaResponse();
+            error.setExitoso(false);
+            error.setMensaje("No se pudo comunicar con n8n. " +
+                    "Detalle: " + e.getMessage());
+            return ResponseEntity.status(502).body(error);
+        }
+    }
+
+    private void registrarConsulta(ClimaResponse respuesta) {
+        if (respuesta == null || !respuesta.isExitoso()) {
+            return;
+        }
+
+        ConsultaClima consulta = new ConsultaClima();
+        consulta.setCiudad(respuesta.getCiudad());
+        consulta.setPais(respuesta.getPais());
+        consulta.setTemperatura(
+                respuesta.getTemperatura() != null
+                        ? respuesta.getTemperatura()
+                        : 0.0
+        );
+        consulta.setCondicionClimatica(
+                respuesta.getCondicionClimatica() != null
+                        ? respuesta.getCondicionClimatica()
+                        : "Descripción no disponible"
+        );
+        consulta.setHumedad(respuesta.getHumedad());
+        consulta.setVelocidadViento(respuesta.getVelocidadViento());
+        consulta.setRecomendacion(
+                respuesta.getRecomendacion() != null
+                        ? respuesta.getRecomendacion()
+                        : "n8n no envió recomendación."
+        );
+        consulta.setHayLluvia(respuesta.getHayLluvia());
+        consulta.setFechaConsulta(LocalDateTime.now());
+
+        climaRepository.guardar(consulta);
     }
 
     @PostMapping("/guardar")

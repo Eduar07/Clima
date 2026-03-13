@@ -2,7 +2,9 @@
 // CONFIGURACIÓN
 // URL base del backend Spring Boot
 // ============================================================
-const BACKEND_URL = 'http://localhost:5678/webhook/consultar-clima';
+const API_BASE_URL = '/api/clima';
+const CONSULTAR_N8N_URL = `${API_BASE_URL}/consultar-n8n`;
+const HISTORIAL_URL = `${API_BASE_URL}/historial`;
 
 // ============================================================
 // FUNCIÓN PRINCIPAL
@@ -23,7 +25,7 @@ async function consultarClima() {
     ocultarResultados();
 
     try {
-        const respuesta = await fetch(BACKEND_URL, {
+        const respuesta = await fetch(CONSULTAR_N8N_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ ciudad: ciudad })
@@ -31,49 +33,22 @@ async function consultarClima() {
 
         const datos = await respuesta.json();
 
-        // N8N responde directamente con los datos procesados
-        if (datos.ciudad) {
-            mostrarResultadoN8N(datos);
+        if (respuesta.ok && datos && datos.ciudad) {
+            mostrarResultado(datos);
+            cargarHistorial();
         } else {
-            mostrarError('No se pudo obtener el clima');
+            const mensaje = (datos && datos.mensaje)
+                ? datos.mensaje
+                : 'No se pudo obtener el clima desde n8n.';
+            mostrarError(mensaje);
         }
 
     } catch (error) {
-        mostrarError('Error de conexión con N8N en puerto 5678.');
+        mostrarError('Error de conexión con el backend o con n8n.');
         console.error('Error:', error);
     } finally {
         mostrarCargando(false);
     }
-}
-
-// Función para mostrar resultado con la estructura que devuelve N8N
-function mostrarResultadoN8N(datos) {
-
-    document.getElementById('nombreCiudad').textContent =
-        datos.ciudad;
-
-    document.getElementById('nombrePais').textContent =
-        datos.pais;
-
-    document.getElementById('temperatura').textContent =
-        datos.temperatura.toFixed(1);
-
-    document.getElementById('condicionTexto').textContent =
-        datos.descripcion;
-
-    document.getElementById('condicionIcono').textContent =
-        obtenerIconoClima(datos.descripcion, datos.hayLluvia);
-
-    document.getElementById('humedad').textContent =
-        datos.humedad + '%';
-
-    document.getElementById('viento').textContent =
-        datos.velocidadViento.toFixed(1) + ' km/h';
-
-    document.getElementById('textoRecomendacion').textContent =
-        datos.recomendacion;
-
-    document.getElementById('resultado').classList.remove('oculto');
 }
 
 // ============================================================
@@ -81,6 +56,18 @@ function mostrarResultadoN8N(datos) {
 // Llena los elementos HTML con los datos del clima
 // ============================================================
 function mostrarResultado(datos) {
+
+    const temperatura = typeof datos.temperatura === 'number'
+        ? datos.temperatura
+        : 0;
+    const velocidadViento = typeof datos.velocidadViento === 'number'
+        ? datos.velocidadViento
+        : 0;
+    const condicion = obtenerCondicion(datos);
+    const humedadTexto = typeof datos.humedad === 'number'
+        ? `${datos.humedad}%`
+        : '--';
+    const hayLluvia = Boolean(datos.hayLluvia);
 
     // Llenar cada elemento con su dato correspondiente
     document.getElementById('nombreCiudad').textContent =
@@ -91,26 +78,32 @@ function mostrarResultado(datos) {
 
     // toFixed(1) muestra un decimal: 14.5 en vez de 14.523
     document.getElementById('temperatura').textContent =
-        datos.temperatura.toFixed(1);
+        temperatura.toFixed(1);
 
     document.getElementById('condicionTexto').textContent =
-        datos.condicionClimatica;
+        condicion;
 
     // Obtener emoji según el tipo de clima
     document.getElementById('condicionIcono').textContent =
-        obtenerIconoClima(datos.condicionClimatica, datos.hayLluvia);
+        obtenerIconoClima(condicion, hayLluvia);
 
     document.getElementById('humedad').textContent =
-        datos.humedad + '%';
+        humedadTexto;
 
     document.getElementById('viento').textContent =
-        datos.velocidadViento.toFixed(1) + ' km/h';
+        velocidadViento.toFixed(1) + ' km/h';
 
     document.getElementById('textoRecomendacion').textContent =
         datos.recomendacion;
 
     // Mostrar la sección de resultado quitando la clase oculto
     document.getElementById('resultado').classList.remove('oculto');
+}
+
+function obtenerCondicion(datos) {
+    const condicion = (datos.condicionClimatica ||
+        datos.descripcion || '').trim();
+    return condicion || 'Descripción no disponible';
 }
 
 // ============================================================
@@ -147,7 +140,7 @@ async function cargarHistorial() {
 
     try {
         // Llamar al endpoint GET del historial
-        const respuesta = await fetch(`${BACKEND_URL}/historial`);
+        const respuesta = await fetch(HISTORIAL_URL);
         const historial = await respuesta.json();
 
         const listaHistorial = document.getElementById('listaHistorial');
