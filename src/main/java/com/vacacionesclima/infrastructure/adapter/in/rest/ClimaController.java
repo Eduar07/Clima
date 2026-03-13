@@ -2,6 +2,7 @@ package com.vacacionesclima.infrastructure.adapter.in.rest;
 
 import com.vacacionesclima.domain.model.ConsultaClima;
 import com.vacacionesclima.domain.port.in.ConsultarClimaUseCase;
+import com.vacacionesclima.domain.port.out.ClimaRepository;
 import com.vacacionesclima.infrastructure.adapter.in.rest.dto.ClimaRequest;
 import com.vacacionesclima.infrastructure.adapter.in.rest.dto.ClimaResponse;
 import com.vacacionesclima.infrastructure.adapter.in.rest.mapper.ClimaMapper;
@@ -30,12 +31,15 @@ public class ClimaController {
     // el controlador
     private final ConsultarClimaUseCase consultarClimaUseCase;
     private final ClimaMapper mapper;
+    private final ClimaRepository climaRepository;
 
     // Inyección por constructor
     public ClimaController(ConsultarClimaUseCase consultarClimaUseCase,
-                           ClimaMapper mapper) {
+                           ClimaMapper mapper,
+                           ClimaRepository climaRepository) {
         this.consultarClimaUseCase = consultarClimaUseCase;
         this.mapper = mapper;
+        this.climaRepository = climaRepository;
     }
 
     // =========================================================
@@ -69,6 +73,19 @@ public class ClimaController {
 
             // HTTP 404 Not Found
             return ResponseEntity.status(404).body(error);
+        }
+    }
+
+    @PostMapping("/guardar")
+    public ResponseEntity<ClimaResponse> guardar(
+            @RequestBody ClimaRequest request) {
+        try {
+            ConsultaClima consulta = new ConsultaClima();
+            consulta.setCiudad(request.getCiudad());
+            climaRepository.guardar(consulta);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
         }
     }
 

@@ -2,7 +2,7 @@
 // CONFIGURACIÓN
 // URL base del backend Spring Boot
 // ============================================================
-const BACKEND_URL = 'http://localhost:8080/api/clima';
+const BACKEND_URL = 'http://localhost:5678/webhook/consultar-clima';
 
 // ============================================================
 // FUNCIÓN PRINCIPAL
@@ -11,61 +11,69 @@ const BACKEND_URL = 'http://localhost:8080/api/clima';
 // ============================================================
 async function consultarClima() {
 
-    // 1. Leer la ciudad que escribió el usuario
     const inputCiudad = document.getElementById('inputCiudad');
     const ciudad = inputCiudad.value.trim();
 
-    // 2. Validar que no esté vacío
     if (!ciudad) {
         mostrarError('Por favor ingresa el nombre de una ciudad');
         return;
     }
 
-    // 3. Preparar la pantalla para la consulta
     mostrarCargando(true);
     ocultarResultados();
 
     try {
-        // 4. Llamar al backend con fetch
-        // fetch() hace peticiones HTTP desde JavaScript
-        const respuesta = await fetch(`${BACKEND_URL}/consultar`, {
+        const respuesta = await fetch(BACKEND_URL, {
             method: 'POST',
-            headers: {
-                // Le decimos al backend que enviamos JSON
-                'Content-Type': 'application/json'
-            },
-            // Convertir el objeto JavaScript a texto JSON
-            // { ciudad: "Bogota" } → '{"ciudad":"Bogota"}'
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ ciudad: ciudad })
         });
 
-        // 5. Convertir la respuesta de texto JSON a objeto JavaScript
         const datos = await respuesta.json();
 
-        // 6. Verificar si la consulta fue exitosa
-        if (datos.exitoso) {
-            mostrarResultado(datos);
-            cargarHistorial();
+        // N8N responde directamente con los datos procesados
+        if (datos.ciudad) {
+            mostrarResultadoN8N(datos);
         } else {
-            mostrarError(
-                datos.mensaje ||
-                'No se pudo obtener el clima de la ciudad indicada'
-            );
+            mostrarError('No se pudo obtener el clima');
         }
 
     } catch (error) {
-        // Si el backend no está corriendo o hay error de red
-        mostrarError(
-            'Error de conexión. Verifica que el servidor ' +
-            'esté corriendo en el puerto 8080.'
-        );
+        mostrarError('Error de conexión con N8N en puerto 5678.');
         console.error('Error:', error);
-
     } finally {
-        // Esto se ejecuta SIEMPRE al terminar
-        // con éxito o con error
         mostrarCargando(false);
     }
+}
+
+// Función para mostrar resultado con la estructura que devuelve N8N
+function mostrarResultadoN8N(datos) {
+
+    document.getElementById('nombreCiudad').textContent =
+        datos.ciudad;
+
+    document.getElementById('nombrePais').textContent =
+        datos.pais;
+
+    document.getElementById('temperatura').textContent =
+        datos.temperatura.toFixed(1);
+
+    document.getElementById('condicionTexto').textContent =
+        datos.descripcion;
+
+    document.getElementById('condicionIcono').textContent =
+        obtenerIconoClima(datos.descripcion, datos.hayLluvia);
+
+    document.getElementById('humedad').textContent =
+        datos.humedad + '%';
+
+    document.getElementById('viento').textContent =
+        datos.velocidadViento.toFixed(1) + ' km/h';
+
+    document.getElementById('textoRecomendacion').textContent =
+        datos.recomendacion;
+
+    document.getElementById('resultado').classList.remove('oculto');
 }
 
 // ============================================================
